@@ -1,14 +1,7 @@
 <?php
 
-
-require_once 'RESTHttpClient.php';
-
-class Spore_Exception extends Exception {
-
-}
-
-class Spore {
-
+class Spore
+{
 	protected $_specs;
 	protected $_client;
 	protected $_methods;
@@ -32,44 +25,52 @@ class Spore {
 	 *
 	 * @param  string $username
 	 * @param  string $password
+	 * @throws Spore_Exception
+	 *
 	 * @return void
 	 */
-	public function __construct($spec_file = '') {
+	public function __construct($spec_file = '')
+	{
 		$this->init($spec_file);
-		$this->_request_params = array ();
+		$this->_response = new stdClass();
+		$this->_request_params = array();
 		$this->_request_cookies = array();
-		$this->_middlewares = array ();
+		$this->_middlewares = array();
 	}
 
 	/**
 	 * Initialize Spore with spec file
+	 * @throws Spore_Exception
 	 *
 	 * @return void
 	 */
-	public function init($spec_file = '') {
+	public function init($spec_file = '')
+	{
 		if (empty ($spec_file))
 			throw new Spore_Exception('Initialization failed: spec file is not defined.');
 
 		// load the spec file
 		$this->_load_spec($spec_file);
 
-		$this->_init_client($this->_specs['base_url']);
+		$this->_init_client();
 
 	}
 
-	public function setBaseUrl($base_url) {
+	public function setBaseUrl($base_url)
+	{
 		$this->_base_url = $base_url;
 	}
 
 	/**
 	 * Enable middleware
 	 *
-	 * @param unknown_type $middleware
-	 * @param unknown_type $args
+	 * @param string $middleware
+	 * @param array $args
 	 */
-	public function enable($middleware, $args) {
+	public function enable($middleware, $args)
+	{
 		// create middleware obj
-		$m = new $middleware ($args);
+		$m = new $middleware($args);
 
 		// add to middleware array
 		array_push($this->_middlewares, $m);
@@ -78,10 +79,13 @@ class Spore {
 	/**
 	 * Load spec file
 	 *
-	 * @param   string  $spec_file
+	 * @param   string $spec_file
+	 * @throws Spore_Exception
+	 *
 	 * @return  array   $specs
 	 */
-	protected function _load_spec($spec_file) {
+	protected function _load_spec($spec_file)
+	{
 		// load file and parse/decode
 		if (preg_match("/\.(json|yaml)$/i", $spec_file, $matches)) {
 			$spec_format = $matches[1];
@@ -99,7 +103,15 @@ class Spore {
 
 	}
 
-	protected function _parse_spec_file($spec_file, $spec_format) {
+	/**
+	 * @param $spec_file
+	 * @param $spec_format
+	 * @throws Spore_Exception
+	 *
+	 * @return mixed
+	 */
+	protected function _parse_spec_file($spec_file, $spec_format)
+	{
 		if (file_exists($spec_file)) {
 			switch ($spec_format) {
 				case 'json' :
@@ -115,8 +127,7 @@ class Spore {
 					fclose($fp);
 
 					// decode the json text
-					$specs_obj = json_decode($specs_text);
-					$specs_array = object_to_array($specs_obj);
+					$specs_array = json_decode($specs_text, true);
 					return $specs_array;
 					break;
 
@@ -135,14 +146,12 @@ class Spore {
 
 	/**
 	 * initialize REST Http Client
-	 *
-	 * @param   string  $spec_file
-	 * @return  array   $specs
 	 */
-	protected function _init_client() {
+	protected function _init_client()
+	{
 		$base_url = $this->_specs['base_url'];
 		$this->_base_url = $base_url;
-		$client = RESTHttpClient :: connect($base_url);
+		$client = RESTHttpClient:: connect($base_url);
 		$client->addHeader('Accept-Charset', 'ISO-8859-1,utf-8');
 		#TODO: manage exception
 		$this->_client = $client;
@@ -153,10 +162,12 @@ class Spore {
 	 *
 	 * @param  string $method
 	 * @param  array $params
+	 * @throws Spore_Exception if unable to find method
+	 *
 	 * @return object
-	 * @throws Zend_Service_Spore_Exception if unable to find method
 	 */
-	public function __call($method, $params) {
+	public function __call($method, $params)
+	{
 		// check if method exists
 		if (!isset ($this->_specs['methods'][$method])) {
 			throw new Spore_Exception('Invalid method "' . $method . '"');
@@ -171,10 +182,10 @@ class Spore {
 	/**
 	 * Execute a client method
 	 *
-	 * @param object $method
-	 * @return void
+	 * @param string $method
 	 */
-	protected function _exec_method($method, $params) {
+	protected function _exec_method($method, $params)
+	{
 		// set method spec
 		$this->_setMethodSpec($this->_specs['methods'][$method]);
 
@@ -218,21 +229,29 @@ class Spore {
 		$this->_request_params = '';
 	}
 
-	protected function _setMethodSpec($spec) {
+	protected function _setMethodSpec($spec)
+	{
 		$this->_method_spec = $spec;
 	}
 
-	protected function _setRequestMethod($request_method) {
+	protected function _setRequestMethod($request_method)
+	{
 		$this->_request_method = $request_method;
 	}
 
-	protected function _prepareParams($method, $params) {
+	/**
+	 * @param string $method
+	 * @param string $params
+	 * @throws Spore_Exception
+	 */
+	protected function _prepareParams($method, $params)
+	{
 		// get path
 		$this->_request_path = $this->_base_url . $this->_specs['methods'][$method]['path'];
 		$this->_request_url_path = $this->_specs['methods'][$method]['path'];
 
 		// add required params into the path
-		$required_params = array ();
+		$required_params = array();
 		if (isset ($this->_specs['methods'][$method]['required_params'])) {
 			foreach ($this->_specs['methods'][$method]['required_params'] as $param) {
 				if (!isset ($params[0][$param]))
@@ -258,7 +277,8 @@ class Spore {
 		$this->_setRawParams($this->_request_params);
 	}
 
-	protected function _insertParam($param, $value) {
+	protected function _insertParam($param, $value)
+	{
 		if (empty ($value))
 			return;
 
@@ -271,7 +291,8 @@ class Spore {
 
 	}
 
-	protected function _setRawParams($params = array ()) {
+	protected function _setRawParams($params = array())
+	{
 		$raw_params = '';
 		foreach ($params as $key => $value) {
 			$raw_params .= empty ($raw_params) ? '' : '&';
@@ -280,18 +301,22 @@ class Spore {
 		$this->_request_raw_params = $raw_params;
 	}
 
-		protected function _prepareCookies() {
+	/**
+	 * @throws Spore_Exception
+	 */
+	protected function _prepareCookies()
+	{
 		$cookies = $this->_request_cookies;
-		$client = RESTHttpClient :: getHttpClient();
-		foreach ( $cookies as &$cookie_arrays) {
+		$client = RESTHttpClient:: getHttpClient();
+		foreach ($cookies as &$cookie_arrays) {
 			if (!isset ($cookie_arrays["name"])) {
 				throw new Spore_Exception('Expected cookie is not found.');
 			} else {
 				$cookie = "{$cookie_arrays['name']}={$cookie_arrays['value']};path={$cookie_arrays['path']};";
 				if (!(empty($cookie_arrays['domain'])))
-					$cookie += "domaine={$cookie_arrays['domain']};";
+					$cookie .= "domaine={$cookie_arrays['domain']};";
 				if ($cookie_arrays['secure'])
-					$cookie += "secure;";
+					$cookie .= "secure;";
 			}
 			$client->addCookie($cookie);
 		}
@@ -301,47 +326,54 @@ class Spore {
 	 * Use our own performPost() for PUT/POST method, since Zend_Rest_Client's restPut() always reset the
 	 * content-type header that we have set before.
 	 */
-	protected function _performPost($method, $path, $data = null) {
+	protected function _performPost($method, $path, $data = null)
+	{
 		// set content-type
 		$content_type = 'application/x-www-form-urlencoded; charset=utf-8';
 		$this->_setContentType($content_type);
 
-		$client = RESTHttpClient :: getHttpClient();
+		$client = RESTHttpClient:: getHttpClient();
 		return $client->doPost($path, $data);
 	}
 
-	protected function _performGet($path, $data = null) {
+	protected function _performGet($path, $data = null)
+	{
 		$content_type = 'application/x-www-form-urlencoded; charset=utf-8';
 		$this->_setContentType($content_type);
 
-		$client = RESTHttpClient :: getHttpClient();
+		$client = RESTHttpClient:: getHttpClient();
 		return $client->doGet($path, $data);
 	}
 
-	/*
+	/**
 	 * Use our own performDelete() for DELETE method, since restDelete() doesn't have any $query parameter
+	 *
+	 * @throws Http_Exception
 	 */
-	protected function _performDelete($path, array $query = null) {
+	protected function _performDelete($path, array $query = null)
+	{
 		// set content-type
 		$content_type = 'application/x-www-form-urlencoded; charset=utf-8';
 		$this->_setContentType($content_type);
 
-		$client = RESTHttpClient :: getHttpClient();
-		return $client->doDelete($path, $data);
+		$client = RESTHttpClient:: getHttpClient();
+		return $client->doDelete($path, $query);
 	}
 
 	/**
 	 * Return the result as an object
 	 */
-	public function setResponse($rest_response) {
-		$client = RESTHttpClient :: getHttpClient();
+	public function setResponse($rest_response)
+	{
+		$client = RESTHttpClient:: getHttpClient();
 		$this->_response->status = $client->getStatus();
 		$this->_response->headers = $client->getHeaders();
 		$this->_response->body = $this->_parseBody($client->getContent());
 
 	}
 
-	private function _parseBody($body) {
+	private function _parseBody($body)
+	{
 		switch (strtolower($this->_format)) {
 			case 'xml' :
 				return "TODO : parse xml response";
@@ -356,17 +388,19 @@ class Spore {
 	/*
 	 * Set the Content-Type header
 	 */
-	private function _setContentType($content_type) {
-		$client = RESTHttpClient :: getHttpClient();
+	private function _setContentType($content_type)
+	{
+		$client = RESTHttpClient:: getHttpClient();
 		$client->createOrUpdateHeader('Content-Type', $content_type);
 	}
 
 	/**
 	 * Return the specification array.
 	 *
-	 * @return array	$specs
+	 * @return array    $specs
 	 */
-	public function getSpecs() {
+	public function getSpecs()
+	{
 		return $this->_specs;
 	}
 
@@ -375,11 +409,12 @@ class Spore {
 	 *
 	 * @return array  $methods
 	 */
-	public function getMethods() {
+	public function getMethods()
+	{
 		if (isset ($this->_methods))
 			return $this->_methods;
 
-		$methods = array ();
+		$methods = array();
 		foreach ($this->_specs['methods'] as $method => $param) {
 			array_push($methods, $method);
 		}
@@ -387,39 +422,48 @@ class Spore {
 		return $methods;
 	}
 
-	public function getFormat() {
+	public function getFormat()
+	{
 		return $this->_format;
 	}
 
-	public function getMethodSpec() {
+	public function getMethodSpec()
+	{
 		return $this->_method_spec;
 	}
 
-	public function getRequestPath() {
+	public function getRequestPath()
+	{
 		return $this->_request_path;
 	}
-	public function getRequestUrlPath() {
+
+	public function getRequestUrlPath()
+	{
 		return $this->_request_url_path;
 	}
 
-	public function getRequestParams() {
+	public function getRequestParams()
+	{
 		return $this->_request_params;
 	}
 
-	public function getRequestMethod() {
+	public function getRequestMethod()
+	{
 		return $this->_request_method;
 	}
 
-	public function getMiddlewares() {
+	public function getMiddlewares()
+	{
 		return $this->_middlewares;
 	}
 
-	public function setCookie($name, $value, $path = "/", $domain = "", $secure = false) {
+	public function setCookie($name, $value, $path = "/", $domain = "", $secure = false)
+	{
 		$cookie_array = array("name" => $name,
-							   "value" => $value,
-							   "path" => $path,
-							   "domain" => $domain,
-							   "secure" => $secure);
+			"value" => $value,
+			"path" => $path,
+			"domain" => $domain,
+			"secure" => $secure);
 		$this->_request_cookies[$name] = $cookie_array;
 	}
 

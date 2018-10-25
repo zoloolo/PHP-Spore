@@ -1,0 +1,14 @@
+{
+    "name": "dark-orange/spore",
+    "require": {
+        "php": ">=5.6.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-yaml": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "": "lib/"
+        }
+    }
+}
