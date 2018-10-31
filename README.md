@@ -24,7 +24,8 @@ $client->enable('AddHeader', [
 ]);
 $client->enable('Spore_Middleware_Weborama_Authentication', [
 	'application_key' => $settings['application_key'],
-	'private_key'     => $settings['private_key']
+	'private_key'     => $settings['private_key'],
+	'user_email'      => $settings['email']
 ]);
 $auth = $client->get_authentication_token([
 	'format'   => 'json',
