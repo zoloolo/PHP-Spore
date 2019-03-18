@@ -19,6 +19,9 @@ class RESTHttpClient
 	private $_append = array();
 
 
+  /**
+   * @return RESTHttpClient
+   */
 	public static function getHttpClient()
 	{
 		if (is_null(self::$_httpClient)) {
@@ -43,16 +46,13 @@ class RESTHttpClient
 		return $this->_cookies;
 	}
 
-	/**
-	 * Factory of the class. Lazy connect
-	 *
-	 * @param string $host
-	 * @param integer $port
-	 * @param string $user
-	 * @param string $pass
-	 *
-	 * @return RESTHttpClient
-	 */
+  /**
+   * Factory of the class. Lazy connect
+   *
+   * @param string $baseurl
+   *
+   * @return RESTHttpClient
+   */
 	static public function connect($baseurl)
 	{
 		self::$_httpClient = new RESTHttpClient($baseurl, false);
