@@ -46,3 +46,13 @@ $res = $client->get_campaign([
 
 print_r($res);
 ```
+
+### Custom events
+```php
+$res = $client->get_statistics([
+  'format'     => 'json',
+  'dimensions' => json_encode(['campaign', 'custom_event']),
+  'metrics'    => json_encode(['event']),
+  'account_id' => $account_id,
+]);
+```
