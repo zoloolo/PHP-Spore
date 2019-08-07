@@ -234,7 +234,7 @@ class Spore
     // set response
     $this->setResponse($rest_response);
 
-    $this->_request_params = '';
+    $this->_request_params = [];
   }
 
   protected function _setMethodSpec($spec)

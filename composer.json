@@ -2,7 +2,6 @@
     "name": "dark-orange/spore",
     "type": "library",
     "require": {
-        "php": ">=5.6.0",
         "ext-curl": "*",
         "ext-json": "*",
         "ext-yaml": "*"
@@ -11,5 +10,6 @@
         "psr-4": {
             "": "lib/"
         }
-    }
+    },
+    "description": "Spore library"
 }
