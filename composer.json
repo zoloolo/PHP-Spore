@@ -1,5 +1,5 @@
 {
-    "name": "dark-orange/spore",
+    "name": "weborama/spore",
     "type": "library",
     "require": {
         "ext-curl": "*",
