@@ -490,6 +490,15 @@ methods:
     - format
     - email
     - password
+  get_authentication_api_jwt_token:
+    path: /advertiser/advertiser_users/jwt_token/:format
+    method: POST
+    required_params:
+      - format
+    optional_params:
+      - kc_token
+      - email
+      - password
   get_user_accessible_routes:
     path: /advertiser/advertiser_users/user_routes_from_privileges/:format
     method: GET
