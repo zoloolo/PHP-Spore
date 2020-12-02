@@ -16,7 +16,7 @@ $settings = [
 ];
 
 $account_id = 123;
-$client = new Spore('/*path to config/route_config.desktop.yaml*/');
+$client = new Spore(__DIR__ . '/config/route_config.desktop.yaml');
 
 // auth
 $client->enable('AddHeader', [
@@ -50,7 +50,7 @@ $settings = [
 ];
 
 $account_id = 123;
-$client = new Spore('/*path to config/route_config.desktop.yaml*/');
+$client = new Spore(__DIR__ . '/config/route_config.desktop.yaml');
 
 // auth
 $client->enable('AddHeader', [
