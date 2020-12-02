@@ -1,0 +1,15 @@
+###################################################################
+---
+name: Advertiser API routes
+base_url: https://api-authentication.weborama.com
+version: 1.0.0
+formats:
+  - json
+methods:
+#  authentication_user functions 
+###################################################################
+  get_wcm_accounts_from_authentication_user:
+    path: /authentication/authentication_users/wcm_accounts/:format
+    method: GET
+    required_params:
+      - format

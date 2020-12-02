@@ -17,6 +17,12 @@ methods:
   get_healthcheck:
     path: /test
     method: GET
+  get_accounts:
+    path: /advertiser/accounts/:id.:format
+    method: GET
+    required_params:
+    - format
+    - id
   ###################################################################
   #  ad_network functions
   ###################################################################
