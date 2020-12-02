@@ -5,7 +5,7 @@ $settings = [
 	'application_key' => '***',
 	'private_key'     => '***',
 	'email'           => '***',
-    'password'        => '***',
+	'password'        => '***',
 ];
 
 $account_id = 123;
@@ -35,12 +35,12 @@ $client->enable('AddHeader', [
 
 $clientList = new Spore(__DIR__ . '/config/list_route_config.yaml');
 $clientList->enable('AddHeader', [
-    'header_name'  => 'X-Weborama-UserAuthToken',
-    'header_value' => $auth->body->token,
+	'header_name'  => 'X-Weborama-UserAuthToken',
+	'header_value' => $auth->body->token,
 ]);
 
 
 $res = $clientList->get_wcm_accounts_from_authentication_user([
-    'format' => 'json',
+	'format' => 'json',
 ]);
 print_r($res);
