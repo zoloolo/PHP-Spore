@@ -1,0 +1,18 @@
+name: Advertiser API routes
+base_url: https://api-authentication.weborama.com
+version: 0.1
+formats:
+  - json
+  - xml
+  - yml
+  - bin
+methods:
+  get_authentication_api_jwt_token:
+    path: /authentication/authentication_users/jwt_token/:format
+    method: POST
+    required_params:
+      - format
+    optional_params:
+      - kc_token
+      - email
+      - password

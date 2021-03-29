@@ -42,29 +42,18 @@ $client->enable('AddHeader', [
 
 ### Auth (jwt)
 ```php
-$settings = [
-	'application_key' => '***',
-	'private_key'     => '***',
-	'email'           => '***',
-	'password'        => '***',
-];
+$authClient = new Spore(__DIR__ . '/config/auth.yaml');
 
-$account_id = 123;
+$auth = $authClient->get_authentication_api_jwt_token([
+	'format'   => 'json',
+	'email'    => 'xxx',
+	'password' => 'xxx'
+]);
+
 $client = new Spore(__DIR__ . '/config/route_config.desktop.yaml');
-
-// auth
 $client->enable('AddHeader', [
-	'header_name'  => 'X-Weborama-Account_Id',
-	'header_value' => $account_id
-]);
-$auth = $client->get_authentication_api_jwt_token([
-  'format'   => 'json',
-  'email'    => $settings['email'],
-  'password' => $settings['password']
-]);
-$client->enable('AddHeader', [
-  'header_name' => 'X-Weborama-JWTUserAuthToken',
-  'header_value' => $auth->body->jwt_token
+	'header_name' => 'X-Weborama-JWTUserAuthToken',
+	'header_value' => $auth->body->jwt_token
 ]);
 // end auth
 ```
